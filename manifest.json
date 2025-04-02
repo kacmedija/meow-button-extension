@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "Meow Button",
+  "version": "1.0",
+  "description": "Adds a Meow button to every website that spawns falling cat emojis",
+  "permissions": ["activeTab"],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["styles.css"]
+    }
+  ],
+  "icons": {
+    "48": "icon48.png",
+    "128": "icon128.png"
+  }
+}
