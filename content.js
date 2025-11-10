@@ -19,7 +19,6 @@
 
   const catFaces = ['😺', '😸', '😹', '😻', '😼', '😽', '🙀', '😿', '😾'];
 
-  // Shared AudioContext (created lazily on first use)
   let audioCtx = null;
   let activeSounds = 0;
   const MAX_CONCURRENT_SOUNDS = 5;
@@ -150,17 +149,14 @@
   
   function playMeowSound() {
     try {
-      // Limit concurrent sounds to prevent audio overload
       if (activeSounds >= MAX_CONCURRENT_SOUNDS) {
         return;
       }
 
-      // Create shared AudioContext lazily on first use
       if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       }
 
-      // Resume context if suspended (browser autoplay policy)
       if (audioCtx.state === 'suspended') {
         audioCtx.resume();
       }
@@ -183,7 +179,6 @@
       oscillator.start();
       oscillator.stop(audioCtx.currentTime + 0.3);
 
-      // Decrease active sound counter when sound finishes
       oscillator.onended = function() {
         activeSounds--;
       };
