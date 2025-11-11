@@ -163,23 +163,74 @@
 
       activeSounds++;
 
-      const oscillator = audioCtx.createOscillator();
-      const gainNode = audioCtx.createGain();
+      const currentTime = audioCtx.currentTime;
+      const duration = 0.5 + Math.random() * 0.15; // 0.5-0.65 sec
 
-      oscillator.type = 'sine';
-      oscillator.frequency.setValueAtTime(800, audioCtx.currentTime);
-      oscillator.frequency.exponentialRampToValueAtTime(400, audioCtx.currentTime + 0.3);
+      // "Mieuw" frekvencia envelope - véletlenszerű variációkkal
+      const startFreq = 700 + Math.random() * 200; // Mi- (700-900 Hz)
+      const midFreq = 300 + Math.random() * 80;    // -e- (300-380 Hz)
+      const endFreq = 450 + Math.random() * 100;   // -uw (450-550 Hz)
 
-      gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+      // Fő oszcillátor - puhább triangle wave
+      const mainOsc = audioCtx.createOscillator();
+      mainOsc.type = 'triangle';
 
-      oscillator.connect(gainNode);
-      gainNode.connect(audioCtx.destination);
+      // "Mieuw" alakú frekvencia - gyors lesüllyedés, majd kicsit feljebb
+      mainOsc.frequency.setValueAtTime(startFreq, currentTime);
+      mainOsc.frequency.exponentialRampToValueAtTime(midFreq, currentTime + duration * 0.4);
+      mainOsc.frequency.exponentialRampToValueAtTime(endFreq, currentTime + duration);
 
-      oscillator.start();
-      oscillator.stop(audioCtx.currentTime + 0.3);
+      // Vibrato LFO - természetes remegés effekt
+      const vibrato = audioCtx.createOscillator();
+      vibrato.type = 'sine';
+      vibrato.frequency.value = 4 + Math.random() * 2; // 4-6 Hz vibrato
 
-      oscillator.onended = function() {
+      const vibratoGain = audioCtx.createGain();
+      vibratoGain.gain.value = 8 + Math.random() * 6; // Változó vibrato mélység
+
+      vibrato.connect(vibratoGain);
+      vibratoGain.connect(mainOsc.frequency);
+
+      // Második oszcillátor - pici eltolással a gazdagabb hangért
+      const voice2 = audioCtx.createOscillator();
+      voice2.type = 'sine';
+      voice2.detune.value = -8 + Math.random() * 4; // Kis detune
+      voice2.frequency.setValueAtTime(startFreq, currentTime);
+      voice2.frequency.exponentialRampToValueAtTime(midFreq, currentTime + duration * 0.4);
+      voice2.frequency.exponentialRampToValueAtTime(endFreq, currentTime + duration);
+
+      // Gain envelope - természetes attack/decay
+      const mainGain = audioCtx.createGain();
+      const voice2Gain = audioCtx.createGain();
+
+      // Gyors, de lágy felfutás
+      mainGain.gain.setValueAtTime(0.001, currentTime);
+      mainGain.gain.exponentialRampToValueAtTime(0.2, currentTime + 0.08);
+      mainGain.gain.exponentialRampToValueAtTime(0.12, currentTime + duration * 0.6);
+      mainGain.gain.exponentialRampToValueAtTime(0.001, currentTime + duration);
+
+      voice2Gain.gain.setValueAtTime(0.001, currentTime);
+      voice2Gain.gain.exponentialRampToValueAtTime(0.08, currentTime + 0.08);
+      voice2Gain.gain.exponentialRampToValueAtTime(0.05, currentTime + duration * 0.6);
+      voice2Gain.gain.exponentialRampToValueAtTime(0.001, currentTime + duration);
+
+      // Összekapcsolás
+      mainOsc.connect(mainGain);
+      voice2.connect(voice2Gain);
+      mainGain.connect(audioCtx.destination);
+      voice2Gain.connect(audioCtx.destination);
+
+      // Indítás
+      mainOsc.start(currentTime);
+      voice2.start(currentTime);
+      vibrato.start(currentTime);
+
+      // Leállítás
+      mainOsc.stop(currentTime + duration);
+      voice2.stop(currentTime + duration);
+      vibrato.stop(currentTime + duration);
+
+      mainOsc.onended = function() {
         activeSounds--;
       };
     } catch (e) {
