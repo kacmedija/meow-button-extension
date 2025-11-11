@@ -1,23 +1,27 @@
 (function() {
   const buttonContainer = document.createElement('div');
   buttonContainer.className = 'meow-button-container';
-  
+
   buttonContainer.style.cursor = 'move';
-  
+
   const meowButton = document.createElement('button');
   meowButton.textContent = 'Meow?';
   meowButton.className = 'meow-button';
   buttonContainer.appendChild(meowButton);
-  
+
   const catContainer = document.createElement('div');
   catContainer.className = 'global-cat-container';
-  
+
   document.body.appendChild(buttonContainer);
   document.body.appendChild(catContainer);
-  
+
   let catCount = 0;
-  
+
   const catFaces = ['😺', '😸', '😹', '😻', '😼', '😽', '🙀', '😿', '😾'];
+
+  let audioCtx = null;
+  let activeSounds = 0;
+  const MAX_CONCURRENT_SOUNDS = 5;
   
   meowButton.addEventListener('click', function(e) {
     if (!isDragging) {
@@ -145,24 +149,42 @@
   
   function playMeowSound() {
     try {
-      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (activeSounds >= MAX_CONCURRENT_SOUNDS) {
+        return;
+      }
+
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+
+      activeSounds++;
+
       const oscillator = audioCtx.createOscillator();
       const gainNode = audioCtx.createGain();
-      
+
       oscillator.type = 'sine';
       oscillator.frequency.setValueAtTime(800, audioCtx.currentTime);
       oscillator.frequency.exponentialRampToValueAtTime(400, audioCtx.currentTime + 0.3);
-      
+
       gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
       gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
-      
+
       oscillator.connect(gainNode);
       gainNode.connect(audioCtx.destination);
-      
+
       oscillator.start();
       oscillator.stop(audioCtx.currentTime + 0.3);
+
+      oscillator.onended = function() {
+        activeSounds--;
+      };
     } catch (e) {
       console.log("Meow sound couldn't play", e);
+      activeSounds--;
     }
   }
 })();
