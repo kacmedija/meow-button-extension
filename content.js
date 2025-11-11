@@ -164,106 +164,71 @@
       activeSounds++;
 
       const currentTime = audioCtx.currentTime;
-      const duration = 0.4 + Math.random() * 0.2; // 0.4-0.6 sec
+      const duration = 0.5 + Math.random() * 0.15; // 0.5-0.65 sec
 
-      // Véletlenszerű kezdő frekvencia a természetesebb hangzásért
-      const startFreq = 600 + Math.random() * 300; // 600-900 Hz
-      const midFreq = 280 + Math.random() * 150;   // 280-430 Hz
-      const endFreq = 350 + Math.random() * 200;   // 350-550 Hz
+      // "Mieuw" frekvencia envelope - véletlenszerű variációkkal
+      const startFreq = 700 + Math.random() * 200; // Mi- (700-900 Hz)
+      const midFreq = 300 + Math.random() * 80;    // -e- (300-380 Hz)
+      const endFreq = 450 + Math.random() * 100;   // -uw (450-550 Hz)
 
-      // Fő oszcillátor (alapfrekvencia)
+      // Fő oszcillátor - puhább triangle wave
       const mainOsc = audioCtx.createOscillator();
-      mainOsc.type = 'sawtooth'; // Gazdagabb harmonikus tartalom
+      mainOsc.type = 'triangle';
 
-      // Komplex frekvencia envelope - macska "meow" alakja
+      // "Mieuw" alakú frekvencia - gyors lesüllyedés, majd kicsit feljebb
       mainOsc.frequency.setValueAtTime(startFreq, currentTime);
-      mainOsc.frequency.exponentialRampToValueAtTime(midFreq, currentTime + duration * 0.6);
+      mainOsc.frequency.exponentialRampToValueAtTime(midFreq, currentTime + duration * 0.4);
       mainOsc.frequency.exponentialRampToValueAtTime(endFreq, currentTime + duration);
 
-      // Második harmonikus oszcillátor
-      const harmOsc = audioCtx.createOscillator();
-      harmOsc.type = 'triangle';
-      harmOsc.frequency.setValueAtTime(startFreq * 2, currentTime);
-      harmOsc.frequency.exponentialRampToValueAtTime(midFreq * 2, currentTime + duration * 0.6);
-      harmOsc.frequency.exponentialRampToValueAtTime(endFreq * 2, currentTime + duration);
+      // Vibrato LFO - természetes remegés effekt
+      const vibrato = audioCtx.createOscillator();
+      vibrato.type = 'sine';
+      vibrato.frequency.value = 4 + Math.random() * 2; // 4-6 Hz vibrato
 
-      // Alacsony frekvenciás komponens a mélyebb hangzásért
-      const subOsc = audioCtx.createOscillator();
-      subOsc.type = 'sine';
-      subOsc.frequency.setValueAtTime(startFreq * 0.5, currentTime);
-      subOsc.frequency.exponentialRampToValueAtTime(midFreq * 0.5, currentTime + duration * 0.6);
-      subOsc.frequency.exponentialRampToValueAtTime(endFreq * 0.5, currentTime + duration);
+      const vibratoGain = audioCtx.createGain();
+      vibratoGain.gain.value = 8 + Math.random() * 6; // Változó vibrato mélység
 
-      // White noise a rekesztéshez
-      const bufferSize = audioCtx.sampleRate * duration;
-      const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-      const output = noiseBuffer.getChannelData(0);
-      for (let i = 0; i < bufferSize; i++) {
-        output[i] = Math.random() * 2 - 1;
-      }
+      vibrato.connect(vibratoGain);
+      vibratoGain.connect(mainOsc.frequency);
 
-      const noiseSource = audioCtx.createBufferSource();
-      noiseSource.buffer = noiseBuffer;
+      // Második oszcillátor - pici eltolással a gazdagabb hangért
+      const voice2 = audioCtx.createOscillator();
+      voice2.type = 'sine';
+      voice2.detune.value = -8 + Math.random() * 4; // Kis detune
+      voice2.frequency.setValueAtTime(startFreq, currentTime);
+      voice2.frequency.exponentialRampToValueAtTime(midFreq, currentTime + duration * 0.4);
+      voice2.frequency.exponentialRampToValueAtTime(endFreq, currentTime + duration);
 
-      // Bandpass filter a zajhoz (macska hangmagasságra szűrve)
-      const noiseFilter = audioCtx.createBiquadFilter();
-      noiseFilter.type = 'bandpass';
-      noiseFilter.frequency.setValueAtTime(500, currentTime);
-      noiseFilter.Q.value = 1;
-
-      // Gain node-ok
+      // Gain envelope - természetes attack/decay
       const mainGain = audioCtx.createGain();
-      const harmGain = audioCtx.createGain();
-      const subGain = audioCtx.createGain();
-      const noiseGain = audioCtx.createGain();
-      const masterGain = audioCtx.createGain();
+      const voice2Gain = audioCtx.createGain();
 
-      // Gain envelope - kezdődik halkan, felerősödik, majd halkulás
+      // Gyors, de lágy felfutás
       mainGain.gain.setValueAtTime(0.001, currentTime);
-      mainGain.gain.exponentialRampToValueAtTime(0.15, currentTime + 0.05);
-      mainGain.gain.exponentialRampToValueAtTime(0.08, currentTime + duration * 0.7);
+      mainGain.gain.exponentialRampToValueAtTime(0.2, currentTime + 0.08);
+      mainGain.gain.exponentialRampToValueAtTime(0.12, currentTime + duration * 0.6);
       mainGain.gain.exponentialRampToValueAtTime(0.001, currentTime + duration);
 
-      harmGain.gain.setValueAtTime(0.001, currentTime);
-      harmGain.gain.exponentialRampToValueAtTime(0.06, currentTime + 0.05);
-      harmGain.gain.exponentialRampToValueAtTime(0.03, currentTime + duration * 0.7);
-      harmGain.gain.exponentialRampToValueAtTime(0.001, currentTime + duration);
-
-      subGain.gain.setValueAtTime(0.001, currentTime);
-      subGain.gain.exponentialRampToValueAtTime(0.08, currentTime + 0.05);
-      subGain.gain.exponentialRampToValueAtTime(0.04, currentTime + duration * 0.7);
-      subGain.gain.exponentialRampToValueAtTime(0.001, currentTime + duration);
-
-      noiseGain.gain.setValueAtTime(0.001, currentTime);
-      noiseGain.gain.exponentialRampToValueAtTime(0.03, currentTime + 0.02);
-      noiseGain.gain.exponentialRampToValueAtTime(0.001, currentTime + duration);
-
-      masterGain.gain.value = 0.6;
+      voice2Gain.gain.setValueAtTime(0.001, currentTime);
+      voice2Gain.gain.exponentialRampToValueAtTime(0.08, currentTime + 0.08);
+      voice2Gain.gain.exponentialRampToValueAtTime(0.05, currentTime + duration * 0.6);
+      voice2Gain.gain.exponentialRampToValueAtTime(0.001, currentTime + duration);
 
       // Összekapcsolás
       mainOsc.connect(mainGain);
-      harmOsc.connect(harmGain);
-      subOsc.connect(subGain);
-      noiseSource.connect(noiseFilter);
-      noiseFilter.connect(noiseGain);
+      voice2.connect(voice2Gain);
+      mainGain.connect(audioCtx.destination);
+      voice2Gain.connect(audioCtx.destination);
 
-      mainGain.connect(masterGain);
-      harmGain.connect(masterGain);
-      subGain.connect(masterGain);
-      noiseGain.connect(masterGain);
-
-      masterGain.connect(audioCtx.destination);
-
-      // Indítás és leállítás
+      // Indítás
       mainOsc.start(currentTime);
-      harmOsc.start(currentTime);
-      subOsc.start(currentTime);
-      noiseSource.start(currentTime);
+      voice2.start(currentTime);
+      vibrato.start(currentTime);
 
+      // Leállítás
       mainOsc.stop(currentTime + duration);
-      harmOsc.stop(currentTime + duration);
-      subOsc.stop(currentTime + duration);
-      noiseSource.stop(currentTime + duration);
+      voice2.stop(currentTime + duration);
+      vibrato.stop(currentTime + duration);
 
       mainOsc.onended = function() {
         activeSounds--;
