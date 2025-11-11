@@ -1,8 +1,8 @@
 .meow-button-container {
   /* Position and layout */
   position: fixed !important;
-  top: 20px !important;
-  right: 20px !important;
+  top: 20px;
+  right: 20px;
   z-index: 2147483647 !important;
 
   /* Reset inherited properties */
