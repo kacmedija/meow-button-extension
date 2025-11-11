@@ -163,23 +163,109 @@
 
       activeSounds++;
 
-      const oscillator = audioCtx.createOscillator();
-      const gainNode = audioCtx.createGain();
+      const currentTime = audioCtx.currentTime;
+      const duration = 0.4 + Math.random() * 0.2; // 0.4-0.6 sec
 
-      oscillator.type = 'sine';
-      oscillator.frequency.setValueAtTime(800, audioCtx.currentTime);
-      oscillator.frequency.exponentialRampToValueAtTime(400, audioCtx.currentTime + 0.3);
+      // Véletlenszerű kezdő frekvencia a természetesebb hangzásért
+      const startFreq = 600 + Math.random() * 300; // 600-900 Hz
+      const midFreq = 280 + Math.random() * 150;   // 280-430 Hz
+      const endFreq = 350 + Math.random() * 200;   // 350-550 Hz
 
-      gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+      // Fő oszcillátor (alapfrekvencia)
+      const mainOsc = audioCtx.createOscillator();
+      mainOsc.type = 'sawtooth'; // Gazdagabb harmonikus tartalom
 
-      oscillator.connect(gainNode);
-      gainNode.connect(audioCtx.destination);
+      // Komplex frekvencia envelope - macska "meow" alakja
+      mainOsc.frequency.setValueAtTime(startFreq, currentTime);
+      mainOsc.frequency.exponentialRampToValueAtTime(midFreq, currentTime + duration * 0.6);
+      mainOsc.frequency.exponentialRampToValueAtTime(endFreq, currentTime + duration);
 
-      oscillator.start();
-      oscillator.stop(audioCtx.currentTime + 0.3);
+      // Második harmonikus oszcillátor
+      const harmOsc = audioCtx.createOscillator();
+      harmOsc.type = 'triangle';
+      harmOsc.frequency.setValueAtTime(startFreq * 2, currentTime);
+      harmOsc.frequency.exponentialRampToValueAtTime(midFreq * 2, currentTime + duration * 0.6);
+      harmOsc.frequency.exponentialRampToValueAtTime(endFreq * 2, currentTime + duration);
 
-      oscillator.onended = function() {
+      // Alacsony frekvenciás komponens a mélyebb hangzásért
+      const subOsc = audioCtx.createOscillator();
+      subOsc.type = 'sine';
+      subOsc.frequency.setValueAtTime(startFreq * 0.5, currentTime);
+      subOsc.frequency.exponentialRampToValueAtTime(midFreq * 0.5, currentTime + duration * 0.6);
+      subOsc.frequency.exponentialRampToValueAtTime(endFreq * 0.5, currentTime + duration);
+
+      // White noise a rekesztéshez
+      const bufferSize = audioCtx.sampleRate * duration;
+      const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const output = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        output[i] = Math.random() * 2 - 1;
+      }
+
+      const noiseSource = audioCtx.createBufferSource();
+      noiseSource.buffer = noiseBuffer;
+
+      // Bandpass filter a zajhoz (macska hangmagasságra szűrve)
+      const noiseFilter = audioCtx.createBiquadFilter();
+      noiseFilter.type = 'bandpass';
+      noiseFilter.frequency.setValueAtTime(500, currentTime);
+      noiseFilter.Q.value = 1;
+
+      // Gain node-ok
+      const mainGain = audioCtx.createGain();
+      const harmGain = audioCtx.createGain();
+      const subGain = audioCtx.createGain();
+      const noiseGain = audioCtx.createGain();
+      const masterGain = audioCtx.createGain();
+
+      // Gain envelope - kezdődik halkan, felerősödik, majd halkulás
+      mainGain.gain.setValueAtTime(0.001, currentTime);
+      mainGain.gain.exponentialRampToValueAtTime(0.15, currentTime + 0.05);
+      mainGain.gain.exponentialRampToValueAtTime(0.08, currentTime + duration * 0.7);
+      mainGain.gain.exponentialRampToValueAtTime(0.001, currentTime + duration);
+
+      harmGain.gain.setValueAtTime(0.001, currentTime);
+      harmGain.gain.exponentialRampToValueAtTime(0.06, currentTime + 0.05);
+      harmGain.gain.exponentialRampToValueAtTime(0.03, currentTime + duration * 0.7);
+      harmGain.gain.exponentialRampToValueAtTime(0.001, currentTime + duration);
+
+      subGain.gain.setValueAtTime(0.001, currentTime);
+      subGain.gain.exponentialRampToValueAtTime(0.08, currentTime + 0.05);
+      subGain.gain.exponentialRampToValueAtTime(0.04, currentTime + duration * 0.7);
+      subGain.gain.exponentialRampToValueAtTime(0.001, currentTime + duration);
+
+      noiseGain.gain.setValueAtTime(0.001, currentTime);
+      noiseGain.gain.exponentialRampToValueAtTime(0.03, currentTime + 0.02);
+      noiseGain.gain.exponentialRampToValueAtTime(0.001, currentTime + duration);
+
+      masterGain.gain.value = 0.6;
+
+      // Összekapcsolás
+      mainOsc.connect(mainGain);
+      harmOsc.connect(harmGain);
+      subOsc.connect(subGain);
+      noiseSource.connect(noiseFilter);
+      noiseFilter.connect(noiseGain);
+
+      mainGain.connect(masterGain);
+      harmGain.connect(masterGain);
+      subGain.connect(masterGain);
+      noiseGain.connect(masterGain);
+
+      masterGain.connect(audioCtx.destination);
+
+      // Indítás és leállítás
+      mainOsc.start(currentTime);
+      harmOsc.start(currentTime);
+      subOsc.start(currentTime);
+      noiseSource.start(currentTime);
+
+      mainOsc.stop(currentTime + duration);
+      harmOsc.stop(currentTime + duration);
+      subOsc.stop(currentTime + duration);
+      noiseSource.stop(currentTime + duration);
+
+      mainOsc.onended = function() {
         activeSounds--;
       };
     } catch (e) {
