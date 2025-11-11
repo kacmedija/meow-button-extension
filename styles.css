@@ -1,57 +1,212 @@
 .meow-button-container {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  z-index: 10000;
-  user-select: none;
+  /* Position and layout */
+  position: fixed !important;
+  top: 20px !important;
+  right: 20px !important;
+  z-index: 2147483647 !important;
+
+  /* Reset inherited properties */
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  background: none !important;
+  box-sizing: border-box !important;
+
+  /* Interaction */
+  user-select: none !important;
+  pointer-events: auto !important;
+
+  /* Size constraints */
+  width: auto !important;
+  height: auto !important;
+  max-width: none !important;
+  max-height: none !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+
+  /* Display */
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  transform: none !important;
+  filter: none !important;
 }
 
 .meow-button-container.dragging .meow-button {
-  opacity: 0.8;
+  opacity: 0.8 !important;
 }
 
 .meow-button {
-  background-color: #f8d026;
-  color: #333;
-  border: none;
-  border-radius: 50px;
-  padding: 10px 20px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  transition: all 0.3s ease;
+  /* Colors and background */
+  background-color: #f8d026 !important;
+  color: #333 !important;
+
+  /* Border and shape */
+  border: none !important;
+  border-radius: 50px !important;
+  outline: none !important;
+
+  /* Spacing */
+  padding: 10px 20px !important;
+  margin: 0 !important;
+
+  /* Typography */
+  font-size: 16px !important;
+  font-weight: bold !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+  line-height: normal !important;
+  text-align: center !important;
+  text-decoration: none !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  word-spacing: normal !important;
+  white-space: nowrap !important;
+  vertical-align: baseline !important;
+
+  /* Box model */
+  box-sizing: border-box !important;
+  display: inline-block !important;
+  width: auto !important;
+  height: auto !important;
+  max-width: none !important;
+  max-height: none !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+
+  /* Interaction */
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  user-select: none !important;
+
+  /* Visual effects */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
+  transition: all 0.3s ease !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+
+  /* Reset transforms */
+  transform: scale(1) !important;
+  transform-origin: center center !important;
+
+  /* Reset position */
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+
+  /* Other resets */
+  float: none !important;
+  clear: none !important;
+  overflow: visible !important;
+  clip: auto !important;
+  z-index: auto !important;
+  filter: none !important;
+  backdrop-filter: none !important;
+  animation: none !important;
 }
+
 .meow-button:hover {
-  background-color: #ffdc5e;
-  transform: scale(1.05);
+  background-color: #ffdc5e !important;
+  transform: scale(1.05) !important;
 }
+
 .meow-button:active {
-  transform: scale(0.95);
+  transform: scale(0.95) !important;
 }
 .global-cat-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 9999;
-  overflow: hidden;
+  /* Position and layout */
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  z-index: 2147483646 !important;
+
+  /* Reset inherited properties */
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  background: none !important;
+  box-sizing: border-box !important;
+
+  /* Display and interaction */
+  display: block !important;
+  pointer-events: none !important;
+  overflow: hidden !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+
+  /* Other resets */
+  transform: none !important;
+  filter: none !important;
+  clip: auto !important;
 }
+
 .global-cat {
-  position: absolute;
-  font-size: 40px;
-  transition: top 2.5s cubic-bezier(0.2, 0.8, 0.9, 1);
-  animation: spin-cat 1s infinite alternate ease-in-out;
-  text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.2);
-  pointer-events: none;
+  /* Position and layout */
+  position: absolute !important;
+
+  /* Typography */
+  font-size: 40px !important;
+  line-height: 1 !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+
+  /* Reset inherited properties */
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  background: none !important;
+  box-sizing: border-box !important;
+  color: inherit !important;
+
+  /* Typography resets */
+  text-align: left !important;
+  text-decoration: none !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  word-spacing: normal !important;
+  white-space: normal !important;
+  font-weight: normal !important;
+  font-style: normal !important;
+  vertical-align: baseline !important;
+
+  /* Display and interaction */
+  display: block !important;
+  pointer-events: none !important;
+  user-select: none !important;
+  visibility: visible !important;
+
+  /* Visual effects */
+  transition: top 2.5s cubic-bezier(0.2, 0.8, 0.9, 1) !important;
+  animation: spin-cat 1s infinite alternate ease-in-out !important;
+  text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.2) !important;
+
+  /* Size constraints */
+  width: auto !important;
+  height: auto !important;
+  max-width: none !important;
+  max-height: none !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+
+  /* Other resets */
+  float: none !important;
+  clear: none !important;
+  overflow: visible !important;
+  clip: auto !important;
+  z-index: auto !important;
+  filter: none !important;
+  backdrop-filter: none !important;
+  opacity: 1 !important;
+  transform-origin: center center !important;
 }
+
 @keyframes spin-cat {
   0% {
-    transform: rotate(-5deg);
+    transform: rotate(-5deg) !important;
   }
   100% {
-    transform: rotate(5deg);
+    transform: rotate(5deg) !important;
   }
 }
