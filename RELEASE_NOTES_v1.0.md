@@ -1,4 +1,4 @@
-# Meow Button Extension - Release v1.0
+# Meow Button Extension - Release v1.1
 
 ## Változások
 
